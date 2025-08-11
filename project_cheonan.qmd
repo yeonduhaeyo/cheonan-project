@@ -1,25 +1,29 @@
---- 
+---
 title: "1인 가구 고독사 및 범죄예방을 위한 생활안전망 구축"
 author: "3조"
 format: dashboard
---- 
+---
 
 [선정 배경]
 
-1. 1인 가구는 고독사, 안전사고, 범죄 위험에 취약하며, 사회적 고립 문젝 심각함
+1. 1인 가구는 고독사, 안전사고, 범죄 위험에 취약하며, 사회적 고립 문제가 심각함  
+2. 천안시의 1인가구비율은 해마다 증가하고 있음  
 
-2. 천안시의 1인가구비율은 해마다 증가하고 있음
 ```{python}
 #| echo: false
 #| results: asis
 
+
 import pandas as pd
 import plotly.graph_objects as go
-from IPython.display import HTML, display
 
-df = pd.read_csv("./tf/1인가구비율_시도_시_군_구__20250811105416.csv", encoding='cp949')
+# 데이터 불러오기
+df = pd.read_csv("./1인가구비율_시도_시_군_구__20250811105416.csv", encoding='cp949')
 
+# Figure 생성
 fig = go.Figure()
+
+# Scatter trace 추가
 fig.add_trace(go.Scatter(
     x=df['시점'],
     y=df['1인가구비율<br>(A÷B×100) (%)'],
@@ -29,6 +33,7 @@ fig.add_trace(go.Scatter(
     hovertemplate='연도: %{x}<br>비율: %{y:.1f}%<extra></extra>'
 ))
 
+# 레이아웃 설정
 fig.update_layout(
     title='천안시 연도별 1인 가구 비율 추이',
     title_x=0.5,
@@ -42,8 +47,9 @@ fig.update_layout(
     hoverlabel=dict(bgcolor='white', font_size=13, font_family='Arial')
 )
 
-# Plotly 그래프를 HTML으로 변환하고 직접 삽입
-html = fig.to_html(include_plotlyjs='cdn', full_html=False)
-display(HTML(html))
 ```
 
+
+```{python}
+
+```

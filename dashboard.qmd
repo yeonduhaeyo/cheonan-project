@@ -1,0 +1,20 @@
+--- 
+title: "천안시 시각화 프로젝트"
+author: "황연주"
+format: dashboard
+--- 
+
+```{python}
+
+
+```
+## Row
+ 
+```{python}
+
+```
+
+
+```{python}
+
+```

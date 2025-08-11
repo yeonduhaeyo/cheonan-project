@@ -1,0 +1,49 @@
+--- 
+title: "1인 가구 고독사 및 범죄예방을 위한 생활안전망 구축"
+author: "3조"
+format: dashboard
+--- 
+
+[선정 배경]
+
+1. 1인 가구는 고독사, 안전사고, 범죄 위험에 취약하며, 사회적 고립 문젝 심각함
+
+2. 천안시의 1인가구비율은 해마다 증가하고 있음
+```{python}
+#| echo: false
+#| results: asis
+
+import pandas as pd
+import plotly.graph_objects as go
+from IPython.display import HTML, display
+
+df = pd.read_csv("./tf/1인가구비율_시도_시_군_구__20250811105416.csv", encoding='cp949')
+
+fig = go.Figure()
+fig.add_trace(go.Scatter(
+    x=df['시점'],
+    y=df['1인가구비율<br>(A÷B×100) (%)'],
+    mode='lines+markers',
+    line=dict(color='royalblue', width=3),
+    marker=dict(size=8, color='darkblue', symbol='circle'),
+    hovertemplate='연도: %{x}<br>비율: %{y:.1f}%<extra></extra>'
+))
+
+fig.update_layout(
+    title='천안시 연도별 1인 가구 비율 추이',
+    title_x=0.5,
+    xaxis_title='연도',
+    yaxis_title='1인 가구 비율 (%)',
+    yaxis=dict(ticksuffix='%', showgrid=True, zeroline=False),
+    xaxis=dict(dtick=1),
+    template='plotly_white',
+    font=dict(family='Arial', size=14),
+    plot_bgcolor='rgba(0,0,0,0)',
+    hoverlabel=dict(bgcolor='white', font_size=13, font_family='Arial')
+)
+
+# Plotly 그래프를 HTML으로 변환하고 직접 삽입
+html = fig.to_html(include_plotlyjs='cdn', full_html=False)
+display(HTML(html))
+```
+

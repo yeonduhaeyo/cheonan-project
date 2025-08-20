@@ -70,7 +70,7 @@ col_mapping = {
 df.rename(columns=col_mapping, inplace=True)
 
 # CSV 저장 (utf-8-sig로 저장하면 한글 깨짐 방지에 좋음)
-df.to_csv('./data_HWJ/천안시_노선번호목록.csv', index=False, encoding='utf-8-sig')
+df.to_csv('./data/천안시_노선번호목록.csv', index=False, encoding='utf-8-sig')
 
 
 
@@ -78,8 +78,8 @@ df.to_csv('./data_HWJ/천안시_노선번호목록.csv', index=False, encoding='
 SERVICE_KEY = "key"
 API_URL = "http://apis.data.go.kr/1613000/BusRouteInfoInqireService/getRouteAcctoThrghSttnList"
 CITY_CODE = "34010"  # 천안시 도시코드
-INPUT_CSV = "./data_HWJ/천안시_노선번호목록.csv"
-OUTPUT_CSV = "./data_HWJ/천안시_노선별경유정류소목록.csv"
+INPUT_CSV = "./data/천안시_노선번호목록.csv"
+OUTPUT_CSV = "./data/천안시_노선별경유정류소목록.csv"
 
 # 최대 재시도 횟수 설정
 MAX_RETRIES = 5
@@ -166,11 +166,11 @@ else:
     
 
 #노선정보항목 조회
-SERVICE_KEY = "key"
+SERVICE_KEY = "lXgIrPRsjleQjcemMPjgZgqE+z/4mH9us3HiWrjFcAmFMeQPcmmLOhrHqmzYuafJDMgUf5uHR636Xvmrt+/EGQ=="
 API_URL = "http://apis.data.go.kr/1613000/BusRouteInfoInqireService/getRouteInfoIem"
 CITY_CODE = "34010"  # 천안 도시코드 (확인 필요)
-INPUT_CSV = "./data_HWJ/천안시_노선번호목록.csv"
-OUTPUT_CSV = "./data_HWJ/천안시_노선정보항목.csv"
+INPUT_CSV = "./data/천안시_노선번호목록.csv"
+OUTPUT_CSV = "./data/천안시_노선정보항목.csv"
 
 route_df = pd.read_csv(INPUT_CSV)
 route_ids = route_df['노선ID'].tolist()

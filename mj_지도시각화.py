@@ -26,24 +26,29 @@ with open('./data_MJ/cheonan_gdf.geojson',encoding='utf-8') as f:
 # 3. 읍면동별 장애인 인구
 disabled=pd.read_csv('./data_MJ/읍면동별_장애인_등록인구_2024.csv',encoding='cp949',skiprows=2)
 # 필요한 컬럼만 추출
-disabled = disabled.iloc[:, [0, 1, 2]]  # '읍면동별(1)', '읍면동별(2)', '장애인등록 인구'
+disabled = disabled.iloc[:, [0, 1, 4]]  # '읍면동별(1)', '읍면동별(2)', '장애인등록인구비율(%)'
+# 장애인인구밀도=장애인등록인구비율= 장애인등록인구/전체인구
+
 # 컬럼명 정리
-disabled.columns = ['구군', '읍면동', '장애인등록인구']
+disabled.columns = ['구군', '읍면동', '장애인 인구 비율']
 # 합계, 소계 행 제거
 disabled = disabled[~disabled['읍면동'].isin(['소계', '합계'])]
 disabled = disabled[~disabled['구군'].isin(['합계'])]
 # 장애인등록인구 숫자화
-disabled['장애인등록인구'] = pd.to_numeric(disabled['장애인등록인구'], errors='coerce')
+disabled['장애인 인구 비율'] = pd.to_numeric(disabled['장애인 인구 비율'], errors='coerce')
 # 인덱스 리셋
 disabled = disabled.reset_index(drop=True)
 disabled= disabled.rename(columns={"읍면동": "ADM_NM"})
+disabled.to_csv('./data_MJ/disabled.csv', index=False, encoding='utf-8-sig')
+
+
 # 4. 장애인 인구 데이터 시각화
 fig = px.choropleth_mapbox(
     disabled,  # ✅ GeoDataFrame 사용
     geojson=geojson_data,
     locations="ADM_NM",  # ✅ 실제 GeoJSON 속성과 연결되는 컬럼
     featureidkey="properties.ADM_NM",  # ✅ GeoJSON 안에 있는 키 경로
-    color='장애인등록인구',
+    color='장애인 인구 비율',
     color_continuous_scale="Blues",
     mapbox_style="carto-positron",
     center={"lat": 36.815, "lon": 127.113},
@@ -64,9 +69,8 @@ fig.add_scattermapbox(
     hoverinfo='text',
     name='장애인 재활시설'
 )
-# 6. <병원 데이터>추가 (?)
 
-# 7. [응급의료시설] 위치
+# 6. [응급의료시설] 위치
 df_hospital_e = pd.read_csv('./data_MJ/응급의료기관.csv',encoding='cp949')
 em_hospital=df_hospital_e[df_hospital_e['주소'].str.contains('천안')]
 # em_hospital.columns
@@ -79,7 +83,7 @@ fig.add_scattermapbox(
     hoverinfo='text',
     name='응급의료기관'
 )
-# 8.[보건기관] 위치
+# 7.[보건기관] 위치
 df_healthcenter = pd.read_csv('./data_MJ/보건기관.csv')
 # df_healthcenter.columns
 fig.add_scattermapbox(
@@ -92,7 +96,7 @@ fig.add_scattermapbox(
     name='보건기관'
 )
 
-# 9. 레이아웃
+# 8. 레이아웃
 fig.update_layout(
     margin={"r": 0, "t": 30, "l": 0, "b": 0},
     title='천안시 장애인 대상 복지시설 위치'
@@ -143,7 +147,7 @@ with open('./data_MJ/cheonan_gdf.geojson',encoding='utf-8') as f:
 # 3. 읍면동별 노인 인구
 older=pd.read_csv('./data_MJ/노인인구.csv',encoding='cp949')
 older = older[older['행정구역'].str.startswith('충청남도 천안시')]
-older = older[['행정구역', '2025년07월_65세이상전체']]
+older = older[['행정구역','2025년07월_전체' ,'2025년07월_65세이상전체']]
 remove_list = [
     "충청남도 천안시 (4413000000)",
     "충청남도 천안시 동남구 (4413100000)",
@@ -151,19 +155,24 @@ remove_list = [
 ]
 older = older[~older['행정구역'].isin(remove_list)].reset_index(drop=True)
 older = older.rename(columns={'2025년07월_65세이상전체': '65세 이상 인구'})
+older = older.rename(columns={'2025년07월_전체': '전체 인구'})
 older['행정구역'] = older['행정구역'].str.replace(r'^충청남도 천안시 (동남구|서북구) ', '', regex=True)
 older['행정구역'] = older['행정구역'].str.replace(r'\s*\(\d+\)', '', regex=True)
 older = older.rename(columns={'행정구역': 'ADM_NM'})
 older['65세 이상 인구'] = pd.to_numeric(older['65세 이상 인구'].str.replace(',', ''), errors='coerce')
+older['전체 인구'] = pd.to_numeric(older['전체 인구'].str.replace(',', ''), errors='coerce')
+older['노인 인구 비율'] = (older['65세 이상 인구'] / older['전체 인구']) * 100
+older.to_csv('./data_MJ/older.csv', index=False, encoding='utf-8-sig')
 
+# 4. 시각화
 fig = px.choropleth_mapbox(
     older,  # ✅ GeoDataFrame 사용
     geojson=geojson_data,
     locations="ADM_NM",  # ✅ 실제 GeoJSON 속성과 연결되는 컬럼
     featureidkey="properties.ADM_NM",  # ✅ GeoJSON 안에 있는 키 경로
-    color='65세 이상 인구',
+    color='노인 인구 비율',
     color_continuous_scale="Greens",
-    range_color=(older['65세 이상 인구'].min(), older['65세 이상 인구'].max()),
+    range_color=(older['노인 인구 비율'].min(), older['노인 인구 비율'].max()),
     mapbox_style="carto-positron",
     center={"lat": 36.815, "lon": 127.113},
     zoom=11,
@@ -172,8 +181,18 @@ fig = px.choropleth_mapbox(
 )
 fig.update_layout(margin={"r":0,"t":30,"l":0,"b":0}) 
 
-
-# 5. <병원 데이터>추가 (?)
+# 7. [노인 복지시설] 위치
+df_welfare_facilities = pd.read_csv('./data_MJ/노인_복지시설.csv')
+df_welfare_facilities.columns
+fig.add_scattermapbox(
+    lat=df_welfare_facilities['위도'],
+    lon=df_welfare_facilities['경도'],
+    mode='markers',
+    marker=dict(size=10, color='yellow'),
+    text=df_welfare_facilities['기관명'] + "<br>" + df_welfare_facilities['주소'],
+    hoverinfo='text',
+    name='노인 복지시설'
+)
 
 # 6. [응급의료시설]  위치
 df_hospital_e = pd.read_csv('./data_MJ/응급의료기관.csv',encoding='cp949')
@@ -200,19 +219,8 @@ fig.add_scattermapbox(
     hoverinfo='text',
     name='보건기관'
 )
-# 8. [노인 복지시설] 위치
-df_welfare_facilities = pd.read_csv('./data_MJ/노인_복지시설.csv')
-df_welfare_facilities.columns
-fig.add_scattermapbox(
-    lat=df_welfare_facilities['위도'],
-    lon=df_welfare_facilities['경도'],
-    mode='markers',
-    marker=dict(size=10, color='yellow'),
-    text=df_welfare_facilities['기관명'] + "<br>" + df_welfare_facilities['주소'],
-    hoverinfo='text',
-    name='노인 복지시설'
-)
-# 9. 레이아웃
+
+# 8. 레이아웃
 fig.update_layout(
     margin={"r": 0, "t": 30, "l": 0, "b": 0},
     title='천안시 노인 대상 복지시설 위치'
